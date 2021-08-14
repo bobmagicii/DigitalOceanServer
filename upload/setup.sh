@@ -38,9 +38,12 @@ InstallOptDirectory() {
 	mkdir /opt/web-prod
 
 	# mcp support things.
-	#git clone bob@mcp.techvip.net:/opt/git/mcp.git /opt/mcp
-	#cd /opt/mcp
-	#composer install
+	if [ -d "setup/bob/sshkey" ]
+	then
+		git clone bob@mcp.techvip.net:/opt/git/mcp.git /opt/mcp
+		cd /opt/mcp
+		composer install
+	fi
 
 	cd $OWD
 	echo "source /opt/mcp/usr/bashrc-aliases.sh" >> .bashrc
@@ -71,6 +74,14 @@ InstallLAMP() {
 	php composer-setup.php
 	mv composer.phar /usr/local/bin/composer
 	chmod 775 /usr/local/bin/composer
+}
+
+ConfigureSwap() {
+	fallocate -l 2G /swap1
+	chmod 600 /swap1
+	mkswap /swap1
+	swapon /swap1
+	echo "/swap1 swap swap defaults 0 0" > /etc/fstab
 }
 
 ConfigureSSH() {
@@ -121,6 +132,7 @@ ConfigureMariaDB() {
 	service mysql restart
 }
 
+ConfigureSwap
 InstallUserAccounts
 InstallCorePackages
 InstallLAMP
