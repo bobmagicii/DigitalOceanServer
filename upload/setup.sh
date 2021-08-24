@@ -37,14 +37,6 @@ InstallOptDirectory() {
 	mkdir /opt/web-dev
 	mkdir /opt/web-prod
 
-	# mcp support things.
-	if [ -d "setup/bob/sshkey" ]
-	then
-		git clone bob@mcp.techvip.net:/opt/git/mcp.git /opt/mcp
-		cd /opt/mcp
-		composer install
-	fi
-
 	cd $OWD
 	echo "source /opt/mcp/usr/bashrc-aliases.sh" >> .bashrc
 	echo "source /opt/mcp/usr/bashrc-append.sh" >> .bashrc
@@ -59,7 +51,7 @@ InstallOptDirectory() {
 InstallCorePackages() {
 	# install things i need just to be productive.
 	apt-get update
-	apt-get -y install joe unzip mlocate net-tools
+	apt-get -y install joe unzip mlocate net-tools zip whois
 }
 
 InstallLAMP() {
@@ -74,6 +66,19 @@ InstallLAMP() {
 	php composer-setup.php
 	mv composer.phar /usr/local/bin/composer
 	chmod 775 /usr/local/bin/composer
+}
+
+InstallMCP() {
+	# mcp support things.
+	export GIT_SSH_COMMAND='ssh -i /home/bob/.ssh/id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=no'
+
+	if [ -d "setup/bob/sshkey" ]
+	then
+		git clone bob@mcp.techvip.net:/opt/git/mcp.git /opt/mcp
+		cd /opt/mcp
+		chmod -R 777 .
+		sudo -u bob composer install
+	fi
 }
 
 ConfigureSwap() {
@@ -141,3 +146,4 @@ ConfigureSSH
 ConfigureApache
 ConfigurePHP
 ConfigureMariaDB
+InstallMCP
